@@ -19,8 +19,8 @@ namespace WorkClock
                     {
                         if (time.Hours == 11)
                         {
-                            var progress      = new Constants.DurationProgressInfo(day + time,  new TimeSpan(0, 30, 0));
-                            var lunchProgress = new Constants.DurationProgressInfo(day + time + new TimeSpan(0, 30, 0), new TimeSpan(0, 30, 0));
+                            var progress      = new DurationProgressInfo(day + time,  new TimeSpan(0, 30, 0));
+                            var lunchProgress = new DurationProgressInfo(day + time + new TimeSpan(0, 30, 0), new TimeSpan(0, 30, 0));
                             float sectionWidth  = dayWidth / 2f;
 
 
@@ -30,7 +30,7 @@ namespace WorkClock
                         }
                         else
                         {
-                            var progress = new Constants.DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
+                            var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
 
                             Console.Write(progress.CreateBar(dayWidth - 1));
                             Console.Write(" ");
@@ -42,15 +42,24 @@ namespace WorkClock
 
                 Console.WriteLine();
                 Console.WriteLine();
-                Console.WriteLine(Constants.CreateTableEntry("Today", Constants.Now.ToString("dddd MMM-d")));
-                Console.WriteLine(Constants.CreateTableEntry("Current Time", Constants.Now.ToString("HH:mm:ss")));
+
+                CLUITable table = new CLUITable()
+                {
+                    Spacing = 1,
+                    RightAlignColumns = new[] { false, true, true, false }
+                };
+
+                table.Add("Today",        CLUI.Date(Constants.Now));
+                table.Add("Current Time", CLUI.Time(Constants.Now));
 
                 if (Constants.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
                 {
-                    Console.WriteLine(Constants.CreateTableEntry("Next Workweek In", Constants.ThisWeek.Start.AddDays(7) - Constants.Now));
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    Console.WriteLine("Have a nice weekend!!");
+                    table.Add("Next Workweek In", CLUI.Time(Constants.ThisWeek.Start.AddDays(7) - Constants.Now));
+                    table.Separator();
+                    table.Separator();
+                    table.Add("Have a nice weekend!!");
+
+                    table.Write();
                     Thread.Sleep(500);
                     continue;
                 }
@@ -58,41 +67,22 @@ namespace WorkClock
                 string lunchText;
 
                 if (Constants.Now.TimeOfDay < new TimeSpan(11, 20, 00))
-                {
                     lunchText = "Before";
-                }
+
                 else if (Constants.Now.TimeOfDay < new TimeSpan(11, 30, 00))
-                {
-                    lunchText = "Soon";
-                    Console.ForegroundColor = ConsoleColor.DarkYellow;
-                }
+                    lunchText = CLUI.DARK_YELLOW + "Soon";
+
                 else if (Constants.Now.TimeOfDay > new TimeSpan(12, 00, 00))
-                {
                     lunchText = "After";
-                }
-                else
-                {
-                    if (DateTime.Now.Millisecond < 500)
-                        lunchText = "In Progress";
-                    else
-                        lunchText = "";
-                    Console.ForegroundColor = ConsoleColor.Red;
-                }
-
-                Console.WriteLine(Constants.CreateTableEntry("Lunch", lunchText));
-                Console.ForegroundColor = ConsoleColor.Gray;
-
-                string coreWorkhoursText = "Unknown";
-
-                if (Constants.Now.TimeOfDay > new TimeSpan(9, 0, 0) && Constants.Now.TimeOfDay < new TimeSpan(14, 0, 0))
-                    coreWorkhoursText = "Yes";
 
                 else
-                    coreWorkhoursText = "No";
+                    lunchText = CLUI.Blink(CLUI.RED + "In Progress");
 
-                Console.WriteLine(Constants.CreateTableEntry("In Core Workhours", coreWorkhoursText));
+                table.Add("Lunch", lunchText);
 
-                Console.WriteLine();
+                table.Add("In Core Workhours", CLUI.YesNo(Constants.Now.TimeOfDay > new TimeSpan(9, 0, 0) && Constants.Now.TimeOfDay < new TimeSpan(14, 0, 0)));
+
+                table.Separator();
 
                 var today = Constants.GetDaySpan(Constants.Now);
                 TimeSpan sinceStart = today.GetTimeSinceStart();
@@ -100,44 +90,37 @@ namespace WorkClock
 
                 if (sinceStart < default(TimeSpan))
                 {
-                    Console.WriteLine(Constants.CreateTableEntry("Time Until Work", sinceStart));
+                    table.Add("Time Until Work", CLUI.Time(sinceStart));
                 }
                 else
                 {
-                    Console.Write(Constants.CreateTableEntry("Time At Work", sinceStart));
-                    Console.Write("  ");
-                    Console.WriteLine((today.GetCompletionPercentage() * 100).ToString("0").PadLeft(3) + "% Complete");
+                    table.Add("Time At Work", CLUI.Time(sinceStart), CLUI.Percentage(today.GetCompletionPercentage()), "Complete");
                 }
 
                 if (untilEnd > default(TimeSpan))
                 {
+                    string untilEndText = "";
+
                     if (untilEnd < new TimeSpan(0, 15, 0))
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                    }
+                        untilEndText += CLUI.RED;
+
                     else if (untilEnd < new TimeSpan(1, 0, 0))
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkYellow;
-                    }
+                        untilEndText += CLUI.DARK_YELLOW;
 
-                    if (untilEnd < new TimeSpan(0, 5, 0) && DateTime.Now.Millisecond < 500)
-                        Console.Write(Constants.CreateTableEntry("Time Left", ""));
-                    else
-                        Console.Write(Constants.CreateTableEntry("Time Left", untilEnd));
+                    untilEndText += CLUI.Time(untilEnd);
 
-                    Console.Write("  ");
-                    Console.WriteLine(((1f - today.GetCompletionPercentage()) * 100).ToString("0").PadLeft(3) + "% Left");
+                    if (untilEnd.TotalMinutes < 5f)
+                        untilEndText = CLUI.Blink(untilEndText);
 
-                    Console.ForegroundColor = ConsoleColor.Gray;
+                    table.Add("Time Left", untilEndText, CLUI.Percentage(1f - today.GetCompletionPercentage()), "Left");
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(Constants.CreateTableEntry("Overtime Worked", untilEnd));
-                    Console.ForegroundColor = ConsoleColor.Gray;
+                    table.Add("Overtime Worked", CLUI.GREEN + CLUI.Time(untilEnd));
                 }
 
-                Console.WriteLine();
+
+                table.Separator();
 
                 TimeSpan timeThisWeek     = Constants.GetDurationCompletedThisWeek();
                 TimeSpan timeLeftThisWeek = Constants.GetTotalDurationThisWeek() - timeThisWeek;
@@ -149,16 +132,11 @@ namespace WorkClock
                 if (timeLeftThisWeek.Ticks < 0)
                     timeLeftThisWeek = default;
 
-                weekPercentage = Math.Clamp(weekPercentage, 0f, 1f);
 
-                Console.Write(Constants.CreateTableEntry("Time This Week", timeThisWeek));
-                Console.Write("  ");
-                Console.WriteLine((weekPercentage * 100).ToString("0").PadLeft(3) + "% Complete");
+                table.Add("Time This Week",      CLUI.Time(timeThisWeek),     CLUI.Percentage(     weekPercentage, true), "Complete");
+                table.Add("Time Left This Week", CLUI.Time(timeLeftThisWeek), CLUI.Percentage(1f - weekPercentage, true), "Left");
 
-                Console.Write(Constants.CreateTableEntry("Time Left This Week", timeLeftThisWeek));
-                Console.Write("  ");
-                Console.WriteLine(((1f - weekPercentage) * 100).ToString("0").PadLeft(3) + "% Left");
-
+                table.Write();
                 Thread.Sleep(500);
 
             } while (true);
