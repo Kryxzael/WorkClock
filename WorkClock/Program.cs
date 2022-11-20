@@ -7,9 +7,20 @@ namespace WorkClock
     {
         public static void Main(string[] args)
         {
+            int bufferWidth = 0, bufferHeight = 0;
+
             do
             {
-                Console.Clear();
+                if (bufferWidth != Console.BufferWidth || bufferHeight != Console.BufferHeight)
+                {
+                    Console.Clear();
+                    bufferWidth  = Console.BufferWidth;
+                    bufferHeight = Console.BufferHeight;
+                }
+
+                Console.CursorLeft = 0;
+                Console.CursorTop  = 0;
+                Console.CursorVisible = false;
 
                 int dayWidth = Console.BufferWidth / Constants.WeekLength;
 
