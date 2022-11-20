@@ -26,28 +26,6 @@ namespace WorkClock
         public static string MAGENTA      = EncodeColor(ConsoleColor.Magenta);
         public static string WHITE        = EncodeColor(ConsoleColor.White);
 
-        public static string CreateBar(int inclusiveWidth, float fillPercentage, char start = '[', char fill = '#', char empty = ' ', char end = ']')
-        {
-            if (inclusiveWidth < 2)
-                throw new ArgumentOutOfRangeException(nameof(inclusiveWidth), "Inclusive width must be at least 2 to account for the start and end caps");
-
-            fillPercentage = Math.Clamp(fillPercentage, 0f, 1f);
-
-            StringBuilder str = new StringBuilder(new string(empty, inclusiveWidth));
-            str[0] = start;
-            str[^1] = end;
-
-            int exclusiveWidth = inclusiveWidth - 2;
-
-            if (exclusiveWidth > 0)
-            {
-                for (int i = 0; i < Math.Round(fillPercentage * exclusiveWidth); i++)
-                    str[i + 1] = fill;
-            }
-
-            return str.ToString();
-        }
-
         /// <summary>
         /// Creates a flashing label
         /// </summary>
@@ -61,24 +39,49 @@ namespace WorkClock
             return new string(' ', EncodedStringLength(text));
         }
 
+        /// <summary>
+        /// Formats the time-stamp of the provided date-time
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
         public static string Time(DateTime dt)
         {
             return dt.ToString("HH:mm:ss");
         }
 
+        /// <summary>
+        /// Formats the provided time-span
+        /// </summary>
+        /// <param name="ts"></param>
+        /// <returns></returns>
         public static string Time(TimeSpan ts)
         {
             if (ts < default(TimeSpan))
                 ts = new TimeSpan(-ts.Ticks);
 
+            else if (ts == default(TimeSpan))
+                return "Zero";
+
             return ((int)ts.TotalHours).ToString() + ts.ToString("':'mm':'ss");
         }
 
+        /// <summary>
+        /// Formats the date of the provided date-time
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
         public static string Date(DateTime dt)
         {
             return dt.Date.ToString("dddd MMM d");
         }
 
+        /// <summary>
+        /// Formats the provided boolean with the provided yes/no values
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="yes"></param>
+        /// <param name="no"></param>
+        /// <returns></returns>
         public static string YesNo(bool value, string yes = "Yes", string no = "No")
         {
             if (value)
@@ -87,6 +90,12 @@ namespace WorkClock
             return no;
         }
 
+        /// <summary>
+        /// Formats the provided percentage, optionally clamping it from 0 to 100
+        /// </summary>
+        /// <param name="percentage"></param>
+        /// <param name="clamp"></param>
+        /// <returns></returns>
         public static string Percentage(float percentage, bool clamp = false)
         {
             if (clamp)
@@ -95,6 +104,22 @@ namespace WorkClock
             return ((int)(percentage * 100f)).ToString("0").PadLeft(3) + "%";
         }
 
+        /// <summary>
+        /// Formats the provided percentage and renders a progress bar next to it
+        /// </summary>
+        /// <param name="percentage"></param>
+        /// <param name="clampPercentage"></param>
+        /// <param name="rightAlignBar"></param>
+        /// <returns></returns>
+        public static string PercentageAndBar(float percentage, bool clampPercentage = false, bool rightAlignBar = false)
+        {
+            return Percentage(percentage, clampPercentage) + " " + new CLUIBar(percentage, 20) { RightAlign = rightAlignBar }.RenderString();
+        }
+
+        /// <summary>
+        /// Writes the provided color encoded text to the console
+        /// </summary>
+        /// <param name="encodedText"></param>
         public static void Write(string encodedText)
         {
             string[] splitForColors = encodedText.Split(COLOR_CONTROL, StringSplitOptions.RemoveEmptyEntries);
@@ -123,6 +148,10 @@ namespace WorkClock
             Console.ForegroundColor = ConsoleColor.Gray;
         }
 
+        /// <summary>
+        /// Writes the provided color encoded text to the console, followed by a line-break
+        /// </summary>
+        /// <param name="encodedText"></param>
         public static void WriteLine(string encodedText)
         {
             Write(encodedText);

@@ -23,16 +23,26 @@ namespace WorkClock
                             var lunchProgress = new DurationProgressInfo(day + time + new TimeSpan(0, 30, 0), new TimeSpan(0, 30, 0));
                             float sectionWidth  = dayWidth / 2f;
 
+                            new CLUIBar(progress, (int)Math.Floor(sectionWidth))
+                            {
+                                EndCap = '|'
+                            }.Write();
 
-                            Console.Write(progress.CreateBar(     (int)Math.Floor(sectionWidth),       end:   '|'));
-                            Console.Write(lunchProgress.CreateBar((int)Math.Ceiling(sectionWidth) - 1, start: '|', fill: '@'));
+                            new CLUIBar(lunchProgress, (int)Math.Ceiling(sectionWidth) - 1)
+                            {
+                                FillPattern = "@",
+                                StartCap = '|'
+                            }.Write();
+
                             Console.Write(" ");
                         }
                         else
                         {
                             var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
 
-                            Console.Write(progress.CreateBar(dayWidth - 1));
+                            new CLUIBar(progress, dayWidth - 1)
+                                .Write();
+
                             Console.Write(" ");
                         }
                     }
@@ -54,7 +64,12 @@ namespace WorkClock
 
                 if (Constants.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
                 {
-                    table.Add("Next Workweek In", CLUI.Time(Constants.ThisWeek.Start.AddDays(7) - Constants.Now));
+                    DurationProgressInfo weekendProgress = new DurationProgressInfo(
+                        Start: Constants.ThisWeek.Start.Date.AddDays(5) + Constants.DayEnd,
+                        End:   Constants.ThisWeek.Start.Date.AddDays(7) + Constants.DayStart
+                    );
+
+                    table.Add("Next Workweek In", CLUI.Time(weekendProgress.GetTimeUntilEnd()), CLUI.PercentageAndBar(weekendProgress.GetCompletionPercentage(), false, false));
                     table.Separator();
                     table.Separator();
                     table.Add("Have a nice weekend!!");
@@ -66,13 +81,13 @@ namespace WorkClock
 
                 string lunchText;
 
-                if (Constants.Now.TimeOfDay < new TimeSpan(11, 20, 00))
+                if (Constants.Now.TimeOfDay < Constants.LunchStart - Constants.LunchSoonSpan)
                     lunchText = "Before";
 
-                else if (Constants.Now.TimeOfDay < new TimeSpan(11, 30, 00))
+                else if (Constants.Now.TimeOfDay < Constants.LunchStart)
                     lunchText = CLUI.DARK_YELLOW + "Soon";
 
-                else if (Constants.Now.TimeOfDay > new TimeSpan(12, 00, 00))
+                else if (Constants.Now.TimeOfDay > Constants.LunchEnd)
                     lunchText = "After";
 
                 else
@@ -80,7 +95,7 @@ namespace WorkClock
 
                 table.Add("Lunch", lunchText);
 
-                table.Add("In Core Workhours", CLUI.YesNo(Constants.Now.TimeOfDay > new TimeSpan(9, 0, 0) && Constants.Now.TimeOfDay < new TimeSpan(14, 0, 0)));
+                table.Add("In Core Workhours", CLUI.YesNo(Constants.Now.TimeOfDay > Constants.CoreWorkHoursStart && Constants.Now.TimeOfDay < Constants.CoreWorkHoursEnd));
 
                 table.Separator();
 
@@ -94,25 +109,25 @@ namespace WorkClock
                 }
                 else
                 {
-                    table.Add("Time At Work", CLUI.Time(sinceStart), CLUI.Percentage(today.GetCompletionPercentage()), "Complete");
+                    table.Add("Time At Work", CLUI.Time(sinceStart), CLUI.PercentageAndBar(today.GetCompletionPercentage(), false, false));
                 }
 
                 if (untilEnd > default(TimeSpan))
                 {
                     string untilEndText = "";
 
-                    if (untilEnd < new TimeSpan(0, 15, 0))
+                    if (untilEnd < Constants.DayEndSoonRed)
                         untilEndText += CLUI.RED;
 
-                    else if (untilEnd < new TimeSpan(1, 0, 0))
+                    else if (untilEnd < Constants.DayEndSoonYellow)
                         untilEndText += CLUI.DARK_YELLOW;
 
                     untilEndText += CLUI.Time(untilEnd);
 
-                    if (untilEnd.TotalMinutes < 5f)
+                    if (untilEnd < Constants.DayEndSoonBlink)
                         untilEndText = CLUI.Blink(untilEndText);
 
-                    table.Add("Time Left", untilEndText, CLUI.Percentage(1f - today.GetCompletionPercentage()), "Left");
+                    table.Add("Time Left", untilEndText, CLUI.PercentageAndBar(1f - today.GetCompletionPercentage(), false, true));
                 }
                 else
                 {
@@ -133,8 +148,8 @@ namespace WorkClock
                     timeLeftThisWeek = default;
 
 
-                table.Add("Time This Week",      CLUI.Time(timeThisWeek),     CLUI.Percentage(     weekPercentage, true), "Complete");
-                table.Add("Time Left This Week", CLUI.Time(timeLeftThisWeek), CLUI.Percentage(1f - weekPercentage, true), "Left");
+                table.Add("Time This Week",      CLUI.Time(timeThisWeek),     CLUI.PercentageAndBar(     weekPercentage, true, false));
+                table.Add("Time Left This Week", CLUI.Time(timeLeftThisWeek), CLUI.PercentageAndBar(1f - weekPercentage, true, true));
 
                 table.Write();
                 Thread.Sleep(500);

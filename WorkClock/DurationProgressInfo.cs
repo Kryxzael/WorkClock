@@ -25,10 +25,5 @@ namespace WorkClock
         {
             return (Constants.Now.Ticks - Start.Ticks) / (float)(End - Start).Ticks;
         }
-
-        public string CreateBar(int inclusiveWidth, char start = '[', char fill = '#', char empty = ' ', char end = ']')
-        {
-            return CLUI.CreateBar(inclusiveWidth, GetCompletionPercentage(), start, fill, empty, end);
-        }
     }
 }

@@ -13,17 +13,67 @@ namespace WorkClock
     {
         public const int WeekLength = 5;
 
-        public static readonly TimeSpan DayStart = new(08, 0, 0);
-        public static readonly TimeSpan DayEnd   = new(16, 0, 0);
+        /// <summary>
+        /// The time-of-day a normal workday will start
+        /// </summary>
+        public static readonly TimeSpan DayStart = new(8, 0, 0);
 
+        /// <summary>
+        /// The time-of-day a normal workday will end
+        /// </summary>
+        public static readonly TimeSpan DayEnd = new(16, 0, 0);
+
+        /// <summary>
+        /// The time-of-day the core work-hours start
+        /// </summary>
+        public static readonly TimeSpan CoreWorkHoursStart = new(9, 0, 0);
+
+        /// <summary>
+        /// The time-of-day the core work-hours end
+        /// </summary>
+        public static readonly TimeSpan CoreWorkHoursEnd = new(14, 0, 0);
+
+        /// <summary>
+        /// The time-of-day lunch break starts
+        /// </summary>
+        public static readonly TimeSpan LunchStart = new(11, 30, 0);
+
+        /// <summary>
+        /// The time-of-day lunch break ends
+        /// </summary>
+        public static readonly TimeSpan LunchEnd = new(12, 0, 0);
+
+        /// <summary>
+        /// The amount of time before lunch starts where lunch is considered soon
+        /// </summary>
+        public static readonly TimeSpan LunchSoonSpan = new(0, 10, 0);
+
+        /// <summary>
+        /// The amount of time before the day ends where the day ending is considered soon and the color yellow is used
+        /// </summary>
+        public static readonly TimeSpan DayEndSoonYellow = new(0, 1, 0);
+
+        /// <summary>
+        /// The amount of time before the day ends where the day ending is considered soon and the color red is used
+        /// </summary>
+        public static readonly TimeSpan DayEndSoonRed = new(0, 15, 0);
+
+        /// <summary>
+        /// The amount of time before the day ends where the day ending is considered soon and the color red and blinking is used
+        /// </summary>
+        public static readonly TimeSpan DayEndSoonBlink = new(0, 5, 0);
+
+        /// <summary>
+        /// Gets the current time
+        /// </summary>
         public static DateTime Now
         {
             get
             {
                 return DateTime.Now;
 
-                DayOfWeek day = DayOfWeek.Wednesday;
-                TimeSpan time = new TimeSpan(11, 20, 00);
+                DayOfWeek day = DayOfWeek.Saturday;
+                TimeSpan time = new TimeSpan(23, 59, 59);
 
                 DateTime date = DateTime.Today;
 
@@ -37,6 +87,9 @@ namespace WorkClock
             }
         }
 
+        /// <summary>
+        /// Gets a duration progress info about the current week
+        /// </summary>
         public static DurationProgressInfo ThisWeek
         {
             get
@@ -50,11 +103,20 @@ namespace WorkClock
             }
         }
 
+        /// <summary>
+        /// Gets a duration progress info object about the provided work-day
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public static DurationProgressInfo GetDaySpan(DateTime date)
         {
             return new DurationProgressInfo(date.Date + DayStart, date.Date + DayEnd);
         }
 
+        /// <summary>
+        /// Gets how much time has been spent at work this week
+        /// </summary>
+        /// <returns></returns>
         public static TimeSpan GetDurationCompletedThisWeek()
         {
             TimeSpan time = default;
@@ -79,6 +141,10 @@ namespace WorkClock
             return time;
         }
 
+        /// <summary>
+        /// Gets the total amount of time in a given work-week
+        /// </summary>
+        /// <returns></returns>
         public static TimeSpan GetTotalDurationThisWeek()
         {
             return (DayEnd - DayStart) * WeekLength;
