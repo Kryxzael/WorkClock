@@ -65,7 +65,7 @@ namespace WorkClock
                 if (Constants.Now.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
                 {
                     DurationProgressInfo weekendProgress = new DurationProgressInfo(
-                        Start: Constants.ThisWeek.Start.Date.AddDays(5) + Constants.DayEnd,
+                        Start: Constants.ThisWeek.Start.Date.AddDays(4) + Constants.DayEnd,
                         End:   Constants.ThisWeek.Start.Date.AddDays(7) + Constants.DayStart
                     );
 
