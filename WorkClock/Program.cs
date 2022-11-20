@@ -83,7 +83,7 @@ namespace WorkClock
                     table.Add("Next Workweek In", CLUI.Time(weekendProgress.GetTimeUntilEnd()), CLUI.PercentageAndBar(weekendProgress.GetCompletionPercentage(), false, false));
                     table.Separator();
                     table.Separator();
-                    table.Add("Have a nice weekend!!");
+                    table.Add(CLUI.Rainbow("Have a nice weekend!!"));
 
                     table.Write();
                     Thread.Sleep(500);

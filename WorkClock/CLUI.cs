@@ -9,22 +9,23 @@ namespace WorkClock
     public static class CLUI
     {
         private const char COLOR_CONTROL = '§';
+        private static ConsoleColor[] RAINBOW_COLORS = { ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Green, ConsoleColor.Blue, ConsoleColor.Cyan, ConsoleColor.Magenta };
 
-        public static string BLACK        = EncodeColor(ConsoleColor.Black);
-        public static string DARK_BLUE    = EncodeColor(ConsoleColor.DarkBlue);
-        public static string DARK_GREEN   = EncodeColor(ConsoleColor.DarkGreen);
-        public static string DARK_CYAN    = EncodeColor(ConsoleColor.DarkCyan);
-        public static string DARK_RED     = EncodeColor(ConsoleColor.DarkRed);
-        public static string DARK_MAGENTA = EncodeColor(ConsoleColor.DarkMagenta);
-        public static string DARK_YELLOW  = EncodeColor(ConsoleColor.DarkYellow);
-        public static string GRAY         = EncodeColor(ConsoleColor.Gray);
-        public static string DARK_GRAY    = EncodeColor(ConsoleColor.DarkGray);
-        public static string BLUE         = EncodeColor(ConsoleColor.Blue);
-        public static string GREEN        = EncodeColor(ConsoleColor.Green);
-        public static string CYAN         = EncodeColor(ConsoleColor.Cyan);
-        public static string RED          = EncodeColor(ConsoleColor.Red);
-        public static string MAGENTA      = EncodeColor(ConsoleColor.Magenta);
-        public static string WHITE        = EncodeColor(ConsoleColor.White);
+        public static readonly string BLACK        = EncodeColor(ConsoleColor.Black);
+        public static readonly string DARK_BLUE    = EncodeColor(ConsoleColor.DarkBlue);
+        public static readonly string DARK_GREEN   = EncodeColor(ConsoleColor.DarkGreen);
+        public static readonly string DARK_CYAN    = EncodeColor(ConsoleColor.DarkCyan);
+        public static readonly string DARK_RED     = EncodeColor(ConsoleColor.DarkRed);
+        public static readonly string DARK_MAGENTA = EncodeColor(ConsoleColor.DarkMagenta);
+        public static readonly string DARK_YELLOW  = EncodeColor(ConsoleColor.DarkYellow);
+        public static readonly string GRAY         = EncodeColor(ConsoleColor.Gray);
+        public static readonly string DARK_GRAY    = EncodeColor(ConsoleColor.DarkGray);
+        public static readonly string BLUE         = EncodeColor(ConsoleColor.Blue);
+        public static readonly string GREEN        = EncodeColor(ConsoleColor.Green);
+        public static readonly string CYAN         = EncodeColor(ConsoleColor.Cyan);
+        public static readonly string RED          = EncodeColor(ConsoleColor.Red);
+        public static readonly string MAGENTA      = EncodeColor(ConsoleColor.Magenta);
+        public static readonly string WHITE        = EncodeColor(ConsoleColor.White);
 
         /// <summary>
         /// Creates a flashing label
@@ -37,6 +38,18 @@ namespace WorkClock
                 return text;
 
             return new string(' ', EncodedStringLength(text));
+        }
+
+        /// <summary>
+        /// Creates a label that changes color
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string Rainbow(string text)
+        {
+            int colorIndex = (int)((DateTime.Now.Ticks / new TimeSpan(0, 0, 0, 0, 500).Ticks) % RAINBOW_COLORS.Length);
+
+            return EncodeColor(RAINBOW_COLORS[colorIndex]) + text;
         }
 
         /// <summary>
