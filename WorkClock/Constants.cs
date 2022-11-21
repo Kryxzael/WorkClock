@@ -51,7 +51,7 @@ namespace WorkClock
         /// <summary>
         /// The amount of time before the day ends where the day ending is considered soon and the color yellow is used
         /// </summary>
-        public static readonly TimeSpan DayEndSoonYellow = new(0, 1, 0);
+        public static readonly TimeSpan DayEndSoonYellow = new(1, 0, 0);
 
         /// <summary>
         /// The amount of time before the day ends where the day ending is considered soon and the color red is used
