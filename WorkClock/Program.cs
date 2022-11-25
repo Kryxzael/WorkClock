@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 
@@ -41,7 +42,7 @@ namespace WorkClock
                         break;
 
                     case "--late":
-                        if (subArg != null && float.TryParse(subArg, out float lateOffset))
+                        if (subArg != null && float.TryParse(subArg, NumberStyles.Number, CultureInfo.InvariantCulture, out float lateOffset))
                         {
                             Data.TodayOffset = TimeSpan.FromHours(lateOffset);
                         }
@@ -279,8 +280,16 @@ namespace WorkClock
                     }
                     else
                     {
-                        new CLUISimpleBar(progress, dayWidth - 1)
-                            .Write();
+                        new CLUIBar(progress, dayWidth - 1)
+                        {
+                            GetFillData = (_, max, _) => {
+                                if (time + TimeSpan.FromHours(max) <= Data.TodayStart && day == Data.Now.Date)
+                                    return (ConsoleColor.DarkRed, 'X');
+
+                                return (ConsoleColor.Gray, '#');
+                            },
+                            GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
+                        }.Write();
 
                         Console.Write(" ");
                     }
