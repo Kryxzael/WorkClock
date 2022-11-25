@@ -10,6 +10,12 @@ namespace WorkClock
     {
         public static void Main(string[] args)
         {
+            Console.CancelKeyPress += (s, e) =>
+            {
+                Console.CursorVisible = true;
+                Environment.Exit(0); //Required due to application soft-lock if we are in the middle of a Thread.Sleep call when sending interrupt
+            };
+
             for (int i = 0; i < args.Length; i++)
             {
                 string subArg = null;
@@ -98,7 +104,7 @@ namespace WorkClock
             int bufferWidth = 0, bufferHeight = 0;
             int lastRefreshedMinute = -1;
 
-            do
+            while (true)
             {
                 if (bufferWidth != Console.BufferWidth || bufferHeight != Console.BufferHeight || DateTime.Now.Minute != lastRefreshedMinute)
                 {
@@ -120,8 +126,7 @@ namespace WorkClock
                 WriteTable();
 
                 Thread.Sleep(500);
-
-            } while (true);
+            }
         }
 
         private static void WriteTable()
