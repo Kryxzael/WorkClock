@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace WorkClock
     {
         private float _value;
         private int   _length;
+
+        public delegate (ConsoleColor, char) GetRenderedDataForPosition(float startValue, float endValue, int index);
 
         /// <summary>
         /// Gets or sets the full length of the bar, including the caps
@@ -59,16 +62,6 @@ namespace WorkClock
         public bool RightAlign { get; set; }
 
         /// <summary>
-        /// Gets or sets the pattern to fill the bar with
-        /// </summary>
-        public string FillPattern { get; set; } = "#";
-
-        /// <summary>
-        /// Gets or sets the pattern to fill the bar's background with
-        /// </summary>
-        public string BackgroundPattern { get; set; } = " ";
-
-        /// <summary>
         /// Gets or sets the cap marking the start of the bar
         /// </summary>
         public char StartCap { get; set; } = '[';
@@ -84,14 +77,14 @@ namespace WorkClock
         public ConsoleColor CapColor { get; set; } = ConsoleColor.Gray;
 
         /// <summary>
-        /// Gets or sets the color to use for the background of the bar
+        /// Gets the delegate that is used to get data to fill the bar's filled section with
         /// </summary>
-        public ConsoleColor BackgroundColor { get; set; } = ConsoleColor.Gray;
+        public GetRenderedDataForPosition GetFillData { get; init; }
 
         /// <summary>
-        /// Gets or sets the color to use for the fill of the bar
+        /// Gets the delegate that is used to get data to fill the bar's empty section with
         /// </summary>
-        public ConsoleColor FillColor { get; set; } = ConsoleColor.Gray;
+        public GetRenderedDataForPosition GetEmptyData { get; init; }
 
         /// <summary>
         /// Creates a new bar
@@ -126,37 +119,36 @@ namespace WorkClock
             output.Append(CLUI.EncodeColor(CapColor));
             output.Append(StartCap);
 
-            if (!RightAlign)
-            {
-                output.Append(CLUI.EncodeColor(FillColor));
-                output.Append(repeat(FillPattern, fillLength, 0));
+            float percentPerSegment = 1f / ContentLength;
+            ConsoleColor lastColor = CapColor;
 
-                output.Append(CLUI.EncodeColor(BackgroundColor));
-                output.Append(repeat(BackgroundPattern, emptyLength, fillLength));
-            }
-            else
+            for (int i = (RightAlign ? ContentLength - 1 : 0); (RightAlign ? i >= 0 : i < ContentLength); i += (RightAlign ? -1 : 1))
             {
-                output.Append(CLUI.EncodeColor(BackgroundColor));
-                output.Append(repeat(BackgroundPattern, emptyLength, fillLength));
+                float progressMin = percentPerSegment * i;
+                float progressMax = percentPerSegment * (i + 1);
 
-                output.Append(CLUI.EncodeColor(FillColor));
-                output.Append(repeat(FillPattern, fillLength, 0));
+                ConsoleColor color;
+                char fillChar;
+
+                if (progressMax <= Value)
+                    (color, fillChar) = GetFillData(progressMin, progressMax, i);
+
+                else
+                    (color, fillChar) = GetEmptyData(progressMin, progressMax, i);
+
+                if (lastColor != color)
+                {
+                    output.Append(CLUI.EncodeColor(color));
+                    lastColor = color;
+                }
+
+                output.Append(fillChar);
             }
 
             output.Append(CLUI.EncodeColor(CapColor));
             output.Append(EndCap);
 
             return output.ToString();
-
-            static string repeat(string str, int length, int offset)
-            {
-                string output = "";
-
-                for (int i = 0; i < length; i++)
-                    output += str[(i + offset) % str.Length];
-
-                return output;
-            }
         }
 
         /// <summary>

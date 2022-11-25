@@ -265,30 +265,21 @@ namespace WorkClock
             {
                 for (DateTime day = Data.ThisWeek.Start.Date; day <= Data.ThisWeek.End.Date; day = day.AddDays(1))
                 {
+                    var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
+
                     if (time.Hours == 11)
                     {
-                        var progress      = new DurationProgressInfo(day + time,  new TimeSpan(0, 30, 0));
-                        var lunchProgress = new DurationProgressInfo(day + time + new TimeSpan(0, 30, 0), new TimeSpan(0, 30, 0));
-                        float sectionWidth  = dayWidth / 2f;
-
-                        new CLUIBar(progress, (int)Math.Floor(sectionWidth))
+                        new CLUIBar(progress, dayWidth - 1)
                         {
-                            EndCap = '|'
-                        }.Write();
-
-                        new CLUIBar(lunchProgress, (int)Math.Ceiling(sectionWidth) - 1)
-                        {
-                            FillPattern = "@",
-                            StartCap = '|'
+                            GetFillData = (min, _, _) => min < 0.5f ? (ConsoleColor.Gray, '#') : (ConsoleColor.DarkGray, '@'),
+                            GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
                         }.Write();
 
                         Console.Write(" ");
                     }
                     else
                     {
-                        var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
-
-                        new CLUIBar(progress, dayWidth - 1)
+                        new CLUISimpleBar(progress, dayWidth - 1)
                             .Write();
 
                         Console.Write(" ");
