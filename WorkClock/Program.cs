@@ -260,7 +260,29 @@ namespace WorkClock
     
         private static void WriteCalendar()
         {
-            int dayWidth = Console.BufferWidth / Constants.WeekLength;
+            int dayWidth = (Console.BufferWidth - 3) / Constants.WeekLength;
+
+            Console.Write("    ");
+            foreach (string i in new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" })
+            {
+                if (i.Length > dayWidth)
+                    continue;
+
+                if (Data.Now.DayOfWeek.ToString() == i)
+                {
+                    Console.BackgroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
+
+                Console.Write(i);
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.BackgroundColor = ConsoleColor.Black;
+
+                Console.Write(new string(' ', dayWidth - i.Length));
+            }
+
+            Console.WriteLine();
 
             for (
                 TimeSpan time = Constants.DayStart; 
@@ -268,6 +290,25 @@ namespace WorkClock
                 time += new TimeSpan(1, 0, 0)
             )
             {
+                if (Data.Now.Hour == time.Hours)
+                {
+                    if (time.Hours >= Constants.DayEnd.Hours)
+                        Console.BackgroundColor = ConsoleColor.DarkYellow;
+                    else
+                        Console.BackgroundColor = ConsoleColor.Cyan;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                }
+
+                else if (time.Hours >= Constants.DayEnd.Hours)
+                    Console.ForegroundColor = ConsoleColor.DarkYellow;
+
+                Console.Write(time.Hours.ToString("00"));
+
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.BackgroundColor = ConsoleColor.Black;
+
+                Console.Write(" ");
+
                 for (DateTime day = Data.ThisWeek.Start.Date; day <= Data.ThisWeek.End.Date; day = day.AddDays(1))
                 {
                     if (time >= Constants.DayEnd && day != Data.Now.Date)
