@@ -291,7 +291,7 @@ namespace WorkClock
 
             for (
                 TimeSpan time = Constants.DayStart; 
-                time.Hours < new[]{ Constants.DayEnd.Hours, Data.Now.Hour + 1, Data.TodayEnd.Hours }.Max(); 
+                time.TotalHours < new[]{ Constants.DayEnd.Hours, Data.Now.Hour + 1, Data.TodayEnd.Hours }.Max(); 
                 time += new TimeSpan(1, 0, 0)
             )
             {
