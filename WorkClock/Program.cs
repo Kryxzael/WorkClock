@@ -262,10 +262,20 @@ namespace WorkClock
         {
             int dayWidth = Console.BufferWidth / Constants.WeekLength;
 
-            for (TimeSpan time = Constants.DayStart; time < Constants.DayEnd; time += new TimeSpan(1, 0, 0))
+            for (
+                TimeSpan time = Constants.DayStart; 
+                time.Hours < new[]{ Constants.DayEnd.Hours, Data.Now.Hour + 1, Data.TodayEnd.Hours }.Max(); 
+                time += new TimeSpan(1, 0, 0)
+            )
             {
                 for (DateTime day = Data.ThisWeek.Start.Date; day <= Data.ThisWeek.End.Date; day = day.AddDays(1))
                 {
+                    if (time >= Constants.DayEnd && day != Data.Now.Date)
+                    {
+                        Console.Write(new string(' ', dayWidth));
+                        continue;
+                    }
+
                     var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
 
                     if (time.Hours == 11)
@@ -283,8 +293,13 @@ namespace WorkClock
                         new CLUIBar(progress, dayWidth - 1)
                         {
                             GetFillData = (_, max, _) => {
+                                //Skipping first hours (late)
                                 if (time + TimeSpan.FromHours(max) <= Data.TodayStart && day == Data.Now.Date)
                                     return (ConsoleColor.DarkRed, 'X');
+
+                                //Working overtime
+                                else if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
+                                    return (ConsoleColor.Green, '+');
 
                                 return (ConsoleColor.Gray, '#');
                             },
