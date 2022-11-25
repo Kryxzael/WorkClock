@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,15 +68,37 @@ namespace WorkClock
         /// </summary>
         /// <param name="ts"></param>
         /// <returns></returns>
-        public static string Time(TimeSpan ts)
+        public static string Time(TimeSpan ts, bool forceSimpleFormating = false)
         {
             if (ts < default(TimeSpan))
                 ts = new TimeSpan(-ts.Ticks);
 
-            else if (ts == default(TimeSpan))
+            if (forceSimpleFormating || !Data.HumanReadableTimes)
+                return ((int)ts.TotalHours).ToString() + ts.ToString("':'mm':'ss");
+
+            else if (ts.TotalSeconds < 1f)
                 return "Zero";
 
-            return ((int)ts.TotalHours).ToString() + ts.ToString("':'mm':'ss");
+            else if (ts.TotalMinutes < 1f)
+                return writeComponent(ts.Seconds, "second", "seconds");
+
+            else if (ts.TotalHours < 1f)
+                return writeComponent(ts.Minutes, "minute, ", "minutes, ") + writeComponent(ts.Seconds, "sec", "sec");
+
+            else
+                return writeComponent((int)ts.TotalHours, "hour, ", "hours, ") + writeComponent(ts.Minutes, "min", "min");
+
+
+            string writeComponent(int num, string suffixSingular, string suffixPlural)
+            {
+                int suffixLength = Math.Max(suffixSingular.Length, suffixPlural.Length);
+                int numLength    = 2;
+
+                if (num == 1)
+                    return num.ToString().PadLeft(numLength) + " " + suffixSingular.PadRight(suffixLength);
+
+                return num.ToString().PadLeft(numLength) + " " + suffixPlural.PadRight(suffixLength);
+            }
         }
 
         /// <summary>
@@ -159,6 +182,32 @@ namespace WorkClock
             }
 
             Console.ForegroundColor = ConsoleColor.Gray;
+        }
+
+        public static string RegisterableHoursWorked()
+        {
+            TimeSpan diff = Data.Now.TimeOfDay - Data.TodayStart;
+
+            if (diff < default(TimeSpan))
+                diff = default;
+
+            if (Data.Now.TimeOfDay >= Constants.LunchEnd)
+                diff -= TimeSpan.FromMinutes(30.0);
+
+            return "+" + (Math.Round(diff.TotalHours / 0.5f) * 0.5f).ToString("0.0", CultureInfo.InvariantCulture) + "h";
+        }
+
+        public static string RegisterableHoursLeft()
+        {
+            TimeSpan diff = Data.TodayEndUnadjusted - Data.Now.TimeOfDay;
+
+            if (diff < default(TimeSpan))
+                diff = default;
+
+            if (Data.Now.TimeOfDay < Constants.LunchEnd)
+                diff -= TimeSpan.FromMinutes(30.0);
+
+            return "-" + (Math.Round(diff.TotalHours / 0.5f) * 0.5f).ToString("0.0", CultureInfo.InvariantCulture) + "h";
         }
 
         /// <summary>

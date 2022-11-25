@@ -13,17 +13,17 @@ namespace WorkClock
 
         public TimeSpan GetTimeSinceStart()
         {
-            return Constants.Now - Start;
+            return Data.Now - Start;
         }
 
         public TimeSpan GetTimeUntilEnd()
         {
-            return End - Constants.Now;
+            return End - Data.Now;
         }
 
         public float GetCompletionPercentage()
         {
-            return (Constants.Now.Ticks - Start.Ticks) / (float)(End - Start).Ticks;
+            return (Data.Now.Ticks - Start.Ticks) / (float)(End - Start).Ticks;
         }
     }
 }
