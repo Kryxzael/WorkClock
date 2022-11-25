@@ -235,7 +235,7 @@ namespace WorkClock
             }
             else
             {
-                table.Add("Overtime Worked", CLUI.GREEN + CLUI.Time(untilEnd));
+                table.Add("Overtime Worked", CLUI.GREEN + CLUI.Time(untilEnd), "", CLUI.GREEN + CLUI.RegisterableHoursWorkedOvertime());
             }
 
 

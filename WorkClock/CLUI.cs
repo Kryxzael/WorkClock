@@ -194,7 +194,20 @@ namespace WorkClock
             if (Data.Now.TimeOfDay >= Constants.LunchEnd)
                 diff -= TimeSpan.FromMinutes(30.0);
 
+            if (diff > TimeSpan.FromHours(7.5))
+                diff = TimeSpan.FromHours(7.5);
+
             return "+" + (Math.Round(diff.TotalHours / 0.5f) * 0.5f).ToString("0.0", CultureInfo.InvariantCulture) + "h";
+        }
+
+        public static string RegisterableHoursWorkedOvertime()
+        {
+            TimeSpan diff = Data.Now.TimeOfDay - Data.TodayEnd;
+
+            if (diff < default(TimeSpan))
+                diff = default;
+
+            return "^" + (Math.Round(diff.TotalHours / 0.5f) * 0.5f).ToString("0.0", CultureInfo.InvariantCulture) + "h";
         }
 
         public static string RegisterableHoursLeft()
