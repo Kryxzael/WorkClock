@@ -60,7 +60,7 @@ namespace WorkClock
         /// <returns></returns>
         public static string Time(DateTime dt)
         {
-            return dt.ToString("HH:mm:ss");
+            return dt.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace WorkClock
         /// <returns></returns>
         public static string Date(DateTime dt)
         {
-            return dt.Date.ToString("dddd MMM d");
+            return dt.Date.ToString("dddd MMM d", CultureInfo.InvariantCulture);
         }
 
         /// <summary>
