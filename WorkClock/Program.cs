@@ -324,36 +324,27 @@ namespace WorkClock
 
                     var progress = new DurationProgressInfo(day + time, new TimeSpan(1, 0, 0));
 
-                    if (time.Hours == 11)
+                    new CLUIBar(progress, dayWidth - 1)
                     {
-                        new CLUIBar(progress, dayWidth - 1)
-                        {
-                            GetFillData = (min, _, _) => min < 0.5f ? (ConsoleColor.Gray, '#') : (ConsoleColor.DarkGray, '@'),
-                            GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
-                        }.Write();
+                        GetFillData = (min, max, _) => {
+                            //Skipping first hours (late)
+                            if (time + TimeSpan.FromHours(max) <= Data.TodayStart && day == Data.Now.Date)
+                                return (ConsoleColor.DarkRed, 'X');
 
-                        Console.Write(" ");
-                    }
-                    else
-                    {
-                        new CLUIBar(progress, dayWidth - 1)
-                        {
-                            GetFillData = (_, max, _) => {
-                                //Skipping first hours (late)
-                                if (time + TimeSpan.FromHours(max) <= Data.TodayStart && day == Data.Now.Date)
-                                    return (ConsoleColor.DarkRed, 'X');
+                            //Lunch
+                            if (time + TimeSpan.FromHours(min) >= new TimeSpan(11, 30, 0) && time + TimeSpan.FromHours(max) <= new TimeSpan(12, 0, 0))
+                                return (ConsoleColor.DarkGray, '@');
 
-                                //Working overtime
-                                else if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
-                                    return (ConsoleColor.Green, '+');
+                            //Working overtime
+                            else if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
+                                return (ConsoleColor.Green, '+');
 
-                                return (ConsoleColor.Gray, '#');
-                            },
-                            GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
-                        }.Write();
+                            return (ConsoleColor.Gray, '#');
+                        },
+                        GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
+                    }.Write();
 
-                        Console.Write(" ");
-                    }
+                    Console.Write(" ");
                 }
 
                 Console.WriteLine();
