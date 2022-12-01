@@ -130,7 +130,7 @@ namespace WorkClock
                 ConsoleColor color;
                 char fillChar;
 
-                if (progressMax <= Value)
+                if ((progressMax <= Value && !RightAlign) || (progressMin <= Value && RightAlign))
                     (color, fillChar) = GetFillData(progressMin, progressMax, i);
 
                 else
