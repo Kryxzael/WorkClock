@@ -369,13 +369,19 @@ namespace WorkClock
                             if (time + TimeSpan.FromHours(max) <= Data.TodayStart && day == Data.Now.Date)
                                 return (ConsoleColor.DarkRed, 'X');
 
+                            //Meeting
+                            if (Data.InMeeting(day + time + TimeSpan.FromHours(min), day + time + TimeSpan.FromHours(max)))
+                            {
+                                //Overtime meeting
+                                if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
+                                    return (ConsoleColor.Green, '>');
+
+                                return (ConsoleColor.Cyan, '>');
+                            }
+
                             //Lunch
                             if (time + TimeSpan.FromHours(min) >= new TimeSpan(11, 30, 0) && time + TimeSpan.FromHours(max) <= new TimeSpan(12, 0, 0))
                                 return (ConsoleColor.DarkGray, '@');
-
-                            //Meeting
-                            if (Data.InMeeting(day + time + TimeSpan.FromHours(min), day + time + TimeSpan.FromHours(max)))
-                                return (ConsoleColor.Cyan, '>');
 
                             //Working overtime
                             else if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
