@@ -60,15 +60,7 @@ namespace WorkClock
                 DayOfWeek day = DayOfWeek.Saturday;
                 TimeSpan time = new TimeSpan(23, 59, 59);
 
-                DateTime date = DateTime.Today;
-
-                while (date.DayOfWeek != DayOfWeek.Monday)
-                    date = date.AddDays(-1);
-
-                while (date.DayOfWeek != day)
-                    date = date.AddDays(1);
-
-                return date + time;
+                return GetDateAtWeekDay(day) + time;
             }
         }
 
@@ -86,6 +78,44 @@ namespace WorkClock
 
                 return new DurationProgressInfo(startDate + Constants.DayStart, startDate.AddDays(Constants.WeekLength - 1) + Constants.DayEnd);
             }
+        }
+
+        /// <summary>
+        /// Gets the meetings passed as arguments to the program
+        /// </summary>
+        public static List<Meeting> Meetings { get; set; } = new();
+
+        /// <summary>
+        /// Gets whether there is a meeting between the provided points in time
+        /// </summary>
+        /// <returns></returns>
+        public static bool InMeeting(DateTime start, DateTime end) 
+        {
+            foreach (Meeting i in Meetings)
+            {
+                if (start < i.EndTime && end > i.StartTime)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the date-time instance of a given day-of-the-week this week
+        /// </summary>
+        /// <param name="dow"></param>
+        /// <returns></returns>
+        public static DateTime GetDateAtWeekDay(DayOfWeek dow)
+        {
+            DateTime date = Now.Date;
+
+            while (date.DayOfWeek != DayOfWeek.Monday)
+                date = date.AddDays(-1);
+
+            while (date.DayOfWeek != dow)
+                date = date.AddDays(1);
+
+            return date;
         }
 
         /// <summary>

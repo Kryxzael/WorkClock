@@ -93,7 +93,15 @@ namespace WorkClock
 
                     case "--help" or "-h" or "-?":
                     default:
-                        Console.WriteLine("TODO: Syntax");
+                        if (Meeting.TryParse(arg, out Meeting result))
+                        {
+                            Data.Meetings.Add(result);
+                        }
+                        else
+                        {
+                            Console.WriteLine("TODO: Syntax");
+                            Environment.Exit(1);
+                        }
                         return;
                 }
             }
@@ -192,6 +200,31 @@ namespace WorkClock
                 table.Add("           End In", CLUI.Time(Constants.CoreWorkHoursEnd - DateTime.Now.TimeOfDay));
 
             table.Separator();
+
+            Meeting currentOrNextMeeting = Data.Meetings.LastOrDefault(i => i.EndTime > Data.Now);
+
+            if (currentOrNextMeeting != null && currentOrNextMeeting.StartTime.Date == Data.Now.Date)
+            {
+                DurationProgressInfo progress = currentOrNextMeeting.GetProgress();
+
+                if (progress.GetTimeSinceStart() > default(TimeSpan))
+                {
+                    table.Add("Meeting Ends At", CLUI.CYAN + CLUI.Time(currentOrNextMeeting.EndTime));
+                    table.Add("Meeting Ends In", CLUI.CYAN + CLUI.Time(progress.GetTimeUntilEnd()), CLUI.PercentageAndBar(progress.GetCompletionPercentage()));
+                }
+                else
+                {
+                    string color = CLUI.GRAY;
+                    if (progress.GetTimeSinceStart() >= -Constants.LunchSoonSpan)
+                        color = CLUI.DARK_YELLOW;
+
+                    table.Add("Next Meeting At", color + CLUI.Time(currentOrNextMeeting.StartTime));
+                    table.Add("Next Meeting In", color + CLUI.Time(-progress.GetTimeSinceStart()));
+                }
+
+                table.Separator();
+            }
+
 
             table.Add("Arrived At", CLUI.Time(Data.TodayStart, forceSimpleFormating: true));
             table.Add("Leave At",   CLUI.Time(Data.TodayEnd,   forceSimpleFormating: true));
@@ -340,13 +373,23 @@ namespace WorkClock
                             if (time + TimeSpan.FromHours(min) >= new TimeSpan(11, 30, 0) && time + TimeSpan.FromHours(max) <= new TimeSpan(12, 0, 0))
                                 return (ConsoleColor.DarkGray, '@');
 
+                            //Meeting
+                            if (Data.InMeeting(day + time + TimeSpan.FromHours(min), day + time + TimeSpan.FromHours(max)))
+                                return (ConsoleColor.Cyan, '>');
+
                             //Working overtime
                             else if (time + TimeSpan.FromHours(max) > Data.TodayEnd && day == Data.Now.Date)
                                 return (ConsoleColor.Green, '+');
 
                             return (ConsoleColor.Gray, '#');
                         },
-                        GetEmptyData = (_, _, _) => (ConsoleColor.Gray, ' ')
+                        GetEmptyData = (min, max, _) =>
+                        {
+                            if (Data.InMeeting(day + time + TimeSpan.FromHours(min), day + time + TimeSpan.FromHours(max)))
+                                return (ConsoleColor.DarkGray, '.');
+
+                            return (ConsoleColor.Gray, ' ');
+                        }
                     }.Write();
 
                     Console.Write(" ");
