@@ -215,11 +215,21 @@ namespace WorkClock
                 else
                 {
                     string color = CLUI.GRAY;
-                    if (progress.GetTimeSinceStart() >= -Constants.LunchSoonSpan)
+
+                    if (progress.GetTimeSinceStart() >= -Constants.MeetingSoonRed)
+                        color = CLUI.RED;
+
+                    else if (progress.GetTimeSinceStart() >= -Constants.MeetingSoonYellow)
                         color = CLUI.DARK_YELLOW;
 
-                    table.Add("Next Meeting At", color + CLUI.Time(currentOrNextMeeting.StartTime));
-                    table.Add("Next Meeting In", color + CLUI.Time(-progress.GetTimeSinceStart()));
+                    table.Add("Next Meeting At", CLUI.Time(currentOrNextMeeting.StartTime));
+
+                    if (progress.GetTimeSinceStart() >= -Constants.MeetingSoonBlink)
+                        table.Add("Next Meeting In", color + CLUI.Blink(CLUI.Time(-progress.GetTimeSinceStart())));
+
+                    else
+                        table.Add("Next Meeting In", color + CLUI.Time(-progress.GetTimeSinceStart()));
+
                 }
 
                 table.Separator();

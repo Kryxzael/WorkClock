@@ -64,6 +64,21 @@ namespace WorkClock
         public static readonly TimeSpan DayEndSoonBlink = new(0, 5, 0);
 
         /// <summary>
+        /// The amount of time before the next meeting where it is considered soon and the color yellow is used
+        /// </summary>
+        public static readonly TimeSpan MeetingSoonYellow = new(0, 10, 0);
+
+        /// <summary>
+        /// The amount of time before the next meeting where it is considered soon and the color red is used
+        /// </summary>
+        public static readonly TimeSpan MeetingSoonRed = new(0, 5, 0);
+
+        /// <summary>
+        /// The amount of time before the next meeting where it is considered soon and the color red and blinking is used
+        /// </summary>
+        public static readonly TimeSpan MeetingSoonBlink = new(0, 1, 0);
+
+        /// <summary>
         /// The amount of time to adjust the end-time by if the --adjust flag has been passed to the program
         /// </summary>
         public static TimeSpan AdjustEndTimeSpan { get; } = -new TimeSpan(0, 15, 0);
