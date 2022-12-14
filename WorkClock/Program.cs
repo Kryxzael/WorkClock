@@ -311,37 +311,44 @@ namespace WorkClock
             int dayWidth = (Console.BufferWidth - 3) / Constants.WeekLength;
 
             Console.Write("    ");
-            foreach (string i in new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" })
+            foreach (DayOfWeek i in Enumerable.Range((int)DayOfWeek.Monday, (int)DayOfWeek.Friday).Cast<DayOfWeek>())
             {
-                if (i.Length > dayWidth)
+                string dayString = i.ToString() + " " + Data.GetDateAtWeekDay(i).Day.ToString(CultureInfo.InvariantCulture);
+
+                if (dayString.Length > dayWidth)
                     continue;
 
-                if (Data.Now.DayOfWeek.ToString() == i)
+                if (Data.Now.DayOfWeek == i)
                 {
                     Console.BackgroundColor = ConsoleColor.Cyan;
                     Console.ForegroundColor = ConsoleColor.Black;
                 }
 
-                Console.Write(i);
+                Console.Write(dayString);
 
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.BackgroundColor = ConsoleColor.Black;
 
-                Console.Write(new string(' ', dayWidth - i.Length));
+                Console.Write(new string(' ', dayWidth - dayString.Length));
             }
 
             Console.WriteLine();
 
-            for (
-                TimeSpan time = Constants.DayStart; 
-                time.TotalHours < new[]
-                {
-                    Math.Ceiling(Constants.DayEnd.TotalHours),
-                    Math.Ceiling(Data.Now.Hour + Data.Now.Minute / 60.0),
-                    Math.Ceiling(Data.TodayEnd.TotalHours)
-                }.Max();
-                time += new TimeSpan(1, 0, 0)
-            )
+            double maxHour = Constants.DayEnd.TotalHours;
+            maxHour = Math.Max(maxHour, Data.Now.Hour + Data.Now.Minute / 60.0);
+            maxHour = Math.Max(maxHour, Data.TodayEnd.TotalHours);
+
+            if (Data.Meetings.Any())
+            {
+                Meeting lastMeeting = Data.Meetings
+                    .Where(i => i.EndTime.Date == Data.Now.Date)
+                    .OrderBy(i => i.EndTime)
+                    .Last();
+
+                maxHour = Math.Max(maxHour, lastMeeting.EndTime.Hour + lastMeeting.EndTime.Minute / 60.0);
+            }    
+
+            for (TimeSpan time = Constants.DayStart; time.TotalHours < Math.Ceiling(maxHour);  time += new TimeSpan(1, 0, 0))
             {
                 if (Data.Now.Hour == time.Hours)
                 {
