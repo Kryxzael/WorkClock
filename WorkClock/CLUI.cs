@@ -147,9 +147,15 @@ namespace WorkClock
         /// <param name="clampPercentage"></param>
         /// <param name="rightAlignBar"></param>
         /// <returns></returns>
-        public static string PercentageAndBar(float percentage, bool clampPercentage = false, bool rightAlignBar = false)
+        public static string PercentageAndBar(float percentage, bool clampPercentage = false, bool rightAlignBar = false, string fill = "#")
         {
-            return Percentage(percentage, clampPercentage) + " " + new CLUISimpleBar(percentage, 20) { RightAlign = rightAlignBar }.RenderString();
+            return Percentage(percentage, clampPercentage) 
+                + " " 
+                + new CLUISimpleBar(percentage, 20) 
+                { 
+                    RightAlign = rightAlignBar, 
+                    FillPattern = fill 
+                }.RenderString();
         }
 
         /// <summary>

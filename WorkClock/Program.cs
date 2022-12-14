@@ -201,7 +201,7 @@ namespace WorkClock
 
             table.Separator();
 
-            Meeting currentOrNextMeeting = Data.Meetings.LastOrDefault(i => i.EndTime > Data.Now);
+            Meeting currentOrNextMeeting = Data.Meetings.FirstOrDefault(i => i.EndTime > Data.Now);
 
             if (currentOrNextMeeting != null && currentOrNextMeeting.StartTime.Date == Data.Now.Date)
             {
@@ -210,7 +210,7 @@ namespace WorkClock
                 if (progress.GetTimeSinceStart() > default(TimeSpan))
                 {
                     table.Add("Meeting Ends At", CLUI.CYAN + CLUI.Time(currentOrNextMeeting.EndTime));
-                    table.Add("Meeting Ends In", CLUI.CYAN + CLUI.Time(progress.GetTimeUntilEnd()), CLUI.PercentageAndBar(progress.GetCompletionPercentage()));
+                    table.Add("Meeting Ends In", CLUI.CYAN + CLUI.Time(progress.GetTimeUntilEnd()), CLUI.PercentageAndBar(progress.GetCompletionPercentage(), false, false, ">"));
                 }
                 else
                 {
