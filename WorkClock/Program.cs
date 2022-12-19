@@ -201,7 +201,12 @@ namespace WorkClock
 
             table.Separator();
 
-            Meeting currentOrNextMeeting = Data.Meetings.FirstOrDefault(i => i.EndTime > Data.Now);
+            /*
+             * Meeting info
+             */
+            Meeting currentOrNextMeeting = Data.Meetings
+                .OrderBy(i => i.EndTime)
+                .FirstOrDefault(i => i.EndTime > Data.Now);
 
             if (currentOrNextMeeting != null && currentOrNextMeeting.StartTime.Date == Data.Now.Date)
             {
@@ -338,13 +343,13 @@ namespace WorkClock
             maxHour = Math.Max(maxHour, Data.Now.Hour + Data.Now.Minute / 60.0);
             maxHour = Math.Max(maxHour, Data.TodayEnd.TotalHours);
 
-            if (Data.Meetings.Any())
-            {
-                Meeting lastMeeting = Data.Meetings
+            Meeting lastMeeting = Data.Meetings
                     .Where(i => i.EndTime.Date == Data.Now.Date)
                     .OrderBy(i => i.EndTime)
-                    .Last();
+                    .LastOrDefault();
 
+            if (lastMeeting != null)
+            {
                 maxHour = Math.Max(maxHour, lastMeeting.EndTime.Hour + lastMeeting.EndTime.Minute / 60.0);
             }    
 
