@@ -72,19 +72,19 @@ namespace WorkClock
                         break;
 
                     case "-l":
-                        Data.TodayOffset = TimeSpan.FromHours(0.5);
+                        Data.TodayOffset += TimeSpan.FromHours(0.5);
                         break;
 
                     case "-L":
-                        Data.TodayOffset = TimeSpan.FromHours(1.0);
+                        Data.TodayOffset += TimeSpan.FromHours(1.0);
                         break;
 
                     case "-e":
-                        Data.TodayOffset = TimeSpan.FromHours(-0.5);
+                        Data.TodayOffset += TimeSpan.FromHours(-0.5);
                         break;
 
                     case "-E":
-                        Data.TodayOffset = TimeSpan.FromHours(-1.0);
+                        Data.TodayOffset += TimeSpan.FromHours(-1.0);
                         break;
 
                     case "--digits" or "-d":
