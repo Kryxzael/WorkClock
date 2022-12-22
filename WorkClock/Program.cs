@@ -37,7 +37,14 @@ namespace WorkClock
                 }
             }
 
-            Pump();
+            try
+            {
+                Pump();
+            }
+            finally
+            {
+                Console.CursorVisible = true;
+            }
 
             void parseArg(string arg, string subArg)
             {
