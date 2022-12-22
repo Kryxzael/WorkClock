@@ -13,6 +13,7 @@ namespace WorkClock
             Console.CancelKeyPress += (s, e) =>
             {
                 Console.CursorVisible = true;
+                Console.Clear();
                 Environment.Exit(0); //Required due to application soft-lock if we are in the middle of a Thread.Sleep call when sending interrupt
             };
 
