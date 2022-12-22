@@ -92,6 +92,10 @@ namespace WorkClock
                         break;
 
                     case "--help" or "-h" or "-?":
+                        WriteSyntax();
+                        Environment.Exit(0);
+                        return;
+
                     default:
                         if (Meeting.TryParse(arg, out Meeting result))
                         {
@@ -99,7 +103,7 @@ namespace WorkClock
                         }
                         else
                         {
-                            Console.WriteLine("TODO: Syntax");
+                            WriteSyntax();
                             Environment.Exit(1);
                         }
                         return;
@@ -135,6 +139,50 @@ namespace WorkClock
 
                 Thread.Sleep(500);
             }
+        }
+
+        private static void WriteSyntax()
+        {
+            Console.WriteLine("Usage: workclock.exe [--adjust] [--late <hours> | --early <hours>] [--digits] [<Meetings>]");
+            Console.WriteLine();
+
+            CLUITable switches = new CLUITable { Spacing = 2 };
+            switches.Add("--adj[ust]",      "-a",    "Adjusts the end-time 15 minutes ahead");
+            switches.Add("--late <hours>",  "",      "Offsets the arrival time some time into the future");
+            switches.Add("",                "-L",    "Offsets the arrival time 1 hour into the future. Can be repeated");
+            switches.Add("",                "-l",    "Offsets the arrival time half-an-hour into the future. Can be repeated");
+            switches.Add("--early <hours>", "",      "Offsets the arrival time some time into the past");
+            switches.Add("",                "-E",    "Offsets the arrival time 1 hour into the past. Can be repeated");
+            switches.Add("",                "-e",    "Offsets the arrival time half-an-hour into the past. Can be repeated");
+            switches.Add("--digits",        "-d",    "Uses digital clocks for countdowns/stopwatches, rather than human-friendly values");
+            switches.Add("--help",          "-h -?", "Shows this help page");
+            switches.WriteLine();
+            Console.WriteLine();
+
+            Console.WriteLine("Meeting syntax:");
+            Console.WriteLine("Meetings can be specified for any day and any time of the current week. You may add as many meetings as you like");
+            Console.WriteLine();
+
+            CLUITable meetings = new CLUITable { Spacing = 5 };
+            meetings.Add("1:00pm", "Meeting today at 1 PM (13:00). Lasting one hour by default");
+            meetings.Add("1pm",    "Meeting today at 1 PM (13:00). Lasting one hour by default");
+            meetings.Add("13:00",  "Meeting today at 1 PM (13:00). [...]");
+            meetings.Add("13",     "Meeting today at 1 PM (13:00)");
+            meetings.Separator();
+            meetings.Add("monday 16:30",   "Meeting on Monday at 4:30 PM (16:00)");
+            meetings.Add("mon 16:30",      "Meeting on Monday at 4:30 PM (16:00)");
+            meetings.Add("tomorrow 16:30", "Meeting the following day at 4:30 PM (16:00)");
+            meetings.Add("friday noon",    "Meeting on Friday at 12 PM (12:00)");
+            meetings.Separator();
+            meetings.Add("1pm-2pm", "Meeting today starting 1 PM (14:00) and ending 2 PM (14:00)");
+            meetings.Add("1pm-2h",  "Meeting today starting 1 PM (14:00) and lasting 2 hours");
+            meetings.Add("1pm-2.0", "Meeting today starting 1 PM (14:00) and lasting 2 hours");
+            meetings.Add("1pm-2",   "Meeting today starting 1 PM (14:00) and " + CLUI.DARK_YELLOW + "ending at 2 AM (02:00)");
+            meetings.Add("1pm-2.5", "Meeting today starting 1 PM (14:00) and lasting 2 hours and 30 minutes");
+            meetings.Add("thursday start-end", "Meeting on Thursday spanning the entire workday");
+            meetings.Add("thursday 8-lunch", "Meeting on Thursday starting at 8 AM (08:00) and lasting until lunch");
+
+            meetings.WriteLine();
         }
 
         private static void WriteTable()
