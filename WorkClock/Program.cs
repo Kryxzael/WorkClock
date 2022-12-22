@@ -25,17 +25,22 @@ namespace WorkClock
                 if (i < args.Length - 1 && !args[i + 1].StartsWith("-"))
                     subArg = args[i + 1];
 
+                bool subArgProcessed = false;
+
                 if (arg.StartsWith("-") && !arg.StartsWith("--"))
                 {
                     foreach (char c in arg.Skip(1))
                     {
-                        parseArg("-" + c, null);
+                        parseArg("-" + c, null, out subArgProcessed);
                     }
                 }
                 else
                 {
-                    parseArg(arg, subArg);
+                    parseArg(arg, subArg, out subArgProcessed);
                 }
+
+                if (subArgProcessed)
+                    i++;
             }
 
             try
@@ -47,8 +52,10 @@ namespace WorkClock
                 Console.CursorVisible = true;
             }
 
-            void parseArg(string arg, string subArg)
+            void parseArg(string arg, string subArg, out bool subArgProcessed)
             {
+                subArgProcessed = false;
+
                 switch (arg)
                 {
                     case "--adjust" or "--adj" or "-a":
@@ -59,6 +66,7 @@ namespace WorkClock
                         if (subArg != null && float.TryParse(subArg, NumberStyles.Number, CultureInfo.InvariantCulture, out float lateOffset))
                         {
                             Data.TodayOffset = TimeSpan.FromHours(lateOffset);
+                            subArgProcessed = true;
                         }
                         else
                         {
