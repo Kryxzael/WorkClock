@@ -58,9 +58,17 @@ namespace WorkClock
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
-        public static string Time(DateTime dt)
+        public static string Time(DateTime dt, bool showSeconds = true)
         {
-            return dt.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+            string format;
+
+            if (showSeconds)
+                format = "HH:mm:ss";
+
+            else
+                format = "HH:mm";
+
+            return dt.ToString(format, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -68,13 +76,23 @@ namespace WorkClock
         /// </summary>
         /// <param name="ts"></param>
         /// <returns></returns>
-        public static string Time(TimeSpan ts, bool forceSimpleFormating = false)
+        public static string Time(TimeSpan ts, bool forceSimpleFormating = false, bool showSeconds = true)
         {
             if (ts < default(TimeSpan))
                 ts = new TimeSpan(-ts.Ticks);
 
+            if (!showSeconds && !forceSimpleFormating)
+                throw new ArgumentException("Seconds can only be disabled when forceSimpleFormating is true", nameof(showSeconds));
+
             if (forceSimpleFormating || !Data.HumanReadableTimes)
-                return ((int)ts.TotalHours).ToString() + ts.ToString("':'mm':'ss");
+            {
+                string trailingFormat = "':'mm";
+
+                if (showSeconds)
+                    trailingFormat += "':'ss";
+
+                return ((int)ts.TotalHours).ToString() + ts.ToString(trailingFormat);
+            }
 
             else if (ts.TotalSeconds < 1f)
                 return "Zero";

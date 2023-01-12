@@ -278,7 +278,7 @@ namespace WorkClock
 
                 if (progress.GetTimeSinceStart() > default(TimeSpan))
                 {
-                    table.Add("Meeting Ends At", CLUI.CYAN + CLUI.Time(currentOrNextMeeting.EndTime));
+                    table.Add("Meeting Ends At", CLUI.CYAN + CLUI.Time(currentOrNextMeeting.EndTime, false));
                     table.Add("Meeting Ends In", CLUI.CYAN + CLUI.Time(progress.GetTimeUntilEnd()), CLUI.PercentageAndBar(progress.GetCompletionPercentage(), false, false, ">"));
                 }
                 else
@@ -291,7 +291,7 @@ namespace WorkClock
                     else if (progress.GetTimeSinceStart() >= -Constants.MeetingSoonYellow)
                         color = CLUI.DARK_YELLOW;
 
-                    table.Add("Next Meeting At", CLUI.Time(currentOrNextMeeting.StartTime));
+                    table.Add("Next Meeting At", CLUI.Time(currentOrNextMeeting.StartTime, false));
 
                     if (progress.GetTimeSinceStart() >= -Constants.MeetingSoonBlink)
                         table.Add("Next Meeting In", color + CLUI.Blink(CLUI.Time(-progress.GetTimeSinceStart())));
@@ -305,8 +305,8 @@ namespace WorkClock
             }
 
 
-            table.Add("Arrived At", CLUI.Time(Data.TodayStart, forceSimpleFormating: true));
-            table.Add("Leave At",   CLUI.Time(Data.TodayEnd,   forceSimpleFormating: true));
+            table.Add("Arrived At", CLUI.Time(Data.TodayStart, forceSimpleFormating: true, showSeconds: false));
+            table.Add("Leave At",   CLUI.Time(Data.TodayEnd,   forceSimpleFormating: true, showSeconds: false));
 
             table.Separator();
 
